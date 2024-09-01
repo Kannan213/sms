@@ -1,3 +1,39 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Student Management App</title>
+{% endblock %}
+
 {% block body %}
-<h1>Template</h1>
+<div class="content">
+    <h1>Students</h1>
+
+    {% if students|length < 1 %}
+    <h4>There are no students. Create one below</h4>
+    {% else %}
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Created</th>
+            <th>Action</th>
+        </tr>
+        {% for student in students %}
+        <tr>
+            <td>{{ student.id }}</td>
+            <td>{{ student.first_name }}</td>
+            <td>{{ student.date_created }}</td>
+            <td>
+                <a href="/delete/{{student.id}}">Delete</a>
+                <a href="/update/{{student.id}}">Update</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% endif %}
+    <form action="/" method="POST">
+        <input type="text" name="firstname" id="firstname">
+        <input type="submit" name="Add">
+    </form>
+</div>
 {% endblock %}
