@@ -1,0 +1,59 @@
+Create a PowerPoint presentation with 5 slides for an internal engineering presentation about our FX trade processing service.
+Use a consistent professional theme throughout. Dark slides for slide 1 and slide 5, light slides for slides 2, 3 and 4.
+
+Slide 1 – Title Slide
+Title: FX Trade Processing Architecture
+Subtitle: How we reliably ingest, validate, persist and distribute FX trades across the platform
+Footer: FX Platform · Engineering
+
+Slide 2 – What Are We Trying to Achieve?
+Heading: What Are We Trying to Achieve?
+Intro text: The trade-acceptor service is the backbone of our FX trade distribution pipeline.
+Four sections, each with a bold heading and description:
+
+Single Entry Point: One reliable service receives all FX trades from upstream, removing ambiguity about where trades enter the platform
+Data Integrity: Every trade is validated, enriched and persisted via stored procedure before anything downstream is notified
+Decoupled Distribution: Downstream systems subscribe to trade-bus independently — the acceptor does not care who listens or how many consumers there are
+Resilience by Design: No trade is silently lost. Failures are captured in middleware-resilience so support can replay after debugging the root cause
+
+
+Slide 3 – Architecture Flow
+Heading: Architecture Flow
+Show a step-by-step pipeline with these 4 steps in order:
+Step 1 – Inbound: Upstream system sends XML payload into a Solace inbound queue
+Step 2 – Validate and Enrich: trade-acceptor validates against schema and business rules, enriches and transforms the trade. Raw XML is also archived to Amazon S3 at this point
+Step 3 – Persist: Enriched trade is written to Trade Database via stored procedure, then the result set is retrieved
+Step 4 – Build and Publish: Result set is converted to Protobuf message and published to trade-bus (Solace queue)
+Below the pipeline, show three supporting capabilities:
+
+S3 Archive: Raw inbound XML stored for audit and replay
+middleware-resilience: Captures any process failure. Support team can replay the trade after debugging the root cause
+Observability: Splunk and ELK for logging, Grafana for dashboards and alerts, Mimir for metrics storage, Tempo for distributed tracing
+
+
+Slide 4 – trade-bus: Open Distribution
+Heading: trade-bus — Open for Any Consumer
+Intro: trade-bus is a Solace queue carrying Protobuf messages. Any service that needs FX trade data simply subscribes. No changes are ever needed in trade-acceptor.
+Show trade-bus connecting to three current consumers:
+
+adaptor-a → converts Protobuf and delivers to Downstream System A
+adaptor-b → converts Protobuf and delivers to Downstream System B
+adaptor-c → converts Protobuf and delivers to Downstream System C
+Also show a fourth placeholder labelled "Future Consumer – just subscribe to trade-bus"
+Four key points:
+trade-acceptor publishes once — all consumers receive independently
+Adding a new downstream system requires zero changes to trade-acceptor
+Each adaptor is responsible for converting the Protobuf into the format its downstream expects
+Protobuf is the shared contract — versioned, strongly typed, and efficient
+
+
+Slide 5 – Q&A
+Large heading: Q&A
+Subtext: Questions, thoughts, concerns?
+Small recap line at the bottom listing: Single Entry Point · Validate and Enrich · Persist via Stored Procedure · trade-bus pub/sub · middleware-resilience · Splunk · ELK · Grafana · Mimir · Tempo
+
+A few tips once Copilot generates it:
+
+If slide 3 comes out as bullets instead of a flow diagram, follow up with: "For slide 3, replace the bullet points with a SmartArt left-to-right process flow showing the 4 steps"
+If slide 4 loses the fan-out visual, follow up with: "For slide 4, use a SmartArt radial or converging layout with trade-bus in the centre and the three adaptors branching out"
+Copilot responds well to follow-up tweaks slide by slide, so iterate rather than trying to get everything perfect in one shot
